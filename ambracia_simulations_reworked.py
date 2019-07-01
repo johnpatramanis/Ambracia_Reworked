@@ -14,7 +14,7 @@ from multiprocessing import Process,Manager
 start_time = time.time()
 
 
-reps=10000
+reps=100
 for REPS in range(0,reps):
 
     
@@ -127,7 +127,7 @@ for REPS in range(0,reps):
             L=manager.list(L)
             processes=[]
 ####################################################################################################################################################################################
-            KOMMATIA=50
+            KOMMATIA=200
             for loop in range(1,KOMMATIA):
                 p=Process(target=SIMULATE,args=(L,loop,samples,population_configurations,migration_matrix,demographic_events,))
                 processes.append(p)
@@ -184,78 +184,41 @@ for REPS in range(0,reps):
 
 ######################################################
 
-#MERGING OF FILES ####
-
-
-    MERGED=open('ms_allchroms_{}'.format(REPS),'w')
-    for sample in range(0,len(samples)):
-        for chromosome in range(1,KOMMATIA):
-            file=open('ms_{}'.format(chromosome),'r')
-            myline=0
-            for line in file:
-                #print(sample,myline)
-                if myline==sample:
-                    line=line.strip()
-                    MERGED.write(str(line))
-                    break
-                myline+=1
-            file.close()
-        MERGED.write('\n')
-    MERGED.close()
-    
-## os.system('rm ms_*.')
-    
 #####################################################
 #Split each ms format chromosome file to 50kb chunks
 
     SNPS=open('variants_info.txt','r')
     firstLine = SNPS.readline()
-    CHUNKS=[]
-    POSITIONS=[]
-    begin=0
-    end=0
-    counter=0
-    chr=1
+    POSITIONS={x: [] for x in range(1,KOMMATIA)}
+
     
     for line in SNPS:
         line=line.strip().split()
-        POSITIONS.append(line[2])
-        end=float(line[2])
-        if chr!=int(line[0]):
-            CHUNKS.append([counter,begin,end])
-            begin=0
-            chr=int(line[0])
-            
-        counter+=1
+        POSITIONS[int(line[0])].append(line[2])
+
     SNPS.close()
-    
-    MS_MERGED=open('ms_allchroms_{}'.format(REPS),'r')    
+
 ###########PRINT CHUNKS MS FORMAT FOR COMUSTATS
-    MS_ALL_CHROMS=[]
-    for line in MS_MERGED:
-        line=line.strip().split()
-        MS_ALL_CHROMS.append(line[0])
+
     counter=0
     begin=0
     opener=open('CHUNKED_{}'.format(REPS),'w')
-    opener.write('ms {} {}\n{} {} {}'.format(len(samples),len(CHUNKS),random.randint(0,10000),random.randint(0,10000),random.randint(0,10000)))
+    opener.write('ms {} {}\n{} {} {}'.format(len(samples),len(POSITIONS),random.randint(0,10000),random.randint(0,10000),random.randint(0,10000)))
     opener.write('\n')
-    for x in CHUNKS:
+    for x in range(1,KOMMATIA):
+        ROWS=[]
+        MS_FILE=open('ms_{}'.format(x),'r')
+        for line in MS_FILE:
+            ROWS.append(line.strip())
+        segsites=len(line)
+        chunkpos=' '.join(POSITIONS[x])
         opener.write("\n")
         opener.write("//\n")
-        opener.write("segsites: {}\n".format(x[0]-begin))
-        positions_of_this_chunk=POSITIONS[begin:x[0]]
-        positions_of_this_chunk=' '.join(positions_of_this_chunk)
-        opener.write("positions: {}".format(positions_of_this_chunk))
+        opener.write("segsites: {}\n".format(segsites))
+        opener.write("positions: {}".format(chunkpos))
         opener.write("\n")
-
-        for y in MS_ALL_CHROMS:                    
-            opener.write(''.join(y[begin:x[0]]))
-            opener.write('\n')            
-        begin=x[0]+1
-        
-        counter+=1
-
+        for rows in ROWS:
+            opener.write(rows+'\n')
     elapsed_time_2=time.time() - start_time
     print('step 2 : {}'.format(elapsed_time_2/60))
 
@@ -264,12 +227,11 @@ for REPS in range(0,reps):
 
     os.system('CoMuStats -input CHUNKED_{} -npop 3 20 20 20 -ms > COMUSTATS_{}'.format(REPS,REPS))
     elapsed_time_4=time.time() - start_time
-    print('step 4 : {}'.format(elapsed_time_4/60)) 
+    print('step 3 : {}'.format(elapsed_time_4/60)) 
         
 ###############################################################################################################################################
-    os.system('rm CHUNKED*')
-    os.system('rm *allchroms*')
-    
+
+
 
 ###############################################################################################################################################
 
