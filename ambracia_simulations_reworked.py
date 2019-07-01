@@ -73,11 +73,13 @@ for REPS in range(0,reps):
     
     
     
-    
+    No=1000000
     Theta=No*1e-8*4
     ##metatroph parameters se ms parameters
     
-    os.system('ms 60 100 -t {} -I 3 20 20 20 -g 1 {} -g 2 {} -g 3 {} -n 1 {} -n 2 {} -n 3 {} -m 1 2 {} -m 2 1 {} -m 2 3 {} -m 3 2 {} -m 3 1 {} -m 1 3 {}  -ej 0.2 3 {}') 
+    os.system('ms 60 100 -t {} -I 3 20 20 20 -g 1 {} -g 2 {} -g 3 {} -n 1 {} -n 2 {} -n 3 {} -m 1 2 {} -m 2 1 {} -m 2 3 {} -m 3 2 {} -m 3 1 {} -m 1 3 {}  -ej 0.2 3 {} > MS_OUTPUT_{}'.format(Theta,r_locals,r_metropolis,r_colony,N_locals,N_metropolis,N_finale_colony,migration_matrix[0][1],migration_matrix[0][2],migration_matrix[1][0],migration_matrix[1][2],migration_matrix[2][0],migration_matrix[2][1],COLONIZER,REPS)) 
+    os.system('ms 60 100 -t {} -I 3 20 20 20 -g 1 {} -g 2 {} -g 3 {} -n 1 {} -n 2 {} -n 3 {} -m 1 2 {} -m 2 1 {} -m 2 3 {} -m 3 2 {} -m 3 1 {} -m 1 3 {}  -ej 0.2 3 {} '.format(Theta,r_locals,r_metropolis,r_colony,N_locals,N_metropolis,N_finale_colony,migration_matrix[0][1],migration_matrix[0][2],migration_matrix[1][0],migration_matrix[1][2],migration_matrix[2][0],migration_matrix[2][1],COLONIZER,REPS)) 
+    os.system('CoMuStats -input MS_OUTPUT_{} -npop 3 20 20 20 -ms > COMUSTATS_{}'.format(REPS,REPS))
     #mhdenismos growth migration rate meta apo ej?
     
     
