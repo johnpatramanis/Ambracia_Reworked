@@ -22,22 +22,28 @@ predicted=vector()
 actual=vector()
 mean_diff=vector()
 
+all_indexes=c(1:dim(a)[1])
+cross_val=sample(all_indexes, size=100, replace =F)
+a=a[-(cross_val),]
+cross_val_data=a[cross_val,]
 
-for (j in 1:dim(a)[1]){
+
+
+for (j in 1:dim(cross_val_data)[1]){
   
 tryCatch({  
 
-params <- a[-j,2:14]   #leave one out
-stats <- a[-j,-(1:14)] # << ,<<
-test <- a[j,-(1:14)]
-test_params <-a[j,2:14]
+params <- a[,2:14]   #leave one out
+stats <- a[,-(1:14)] # << ,<<
+test <- cross_val_data[j,-(1:14)]
+test_params <-cross_val_data[j,2:14]
 
 dim(params)
 dim(stats) # check dims to make sure
 
 
   
-myabc <- abc(target=test, param=params, sumstat=stats, tol=0.5, method="ridge", hcorr=TRUE,transf=c('logit'),logit.bounds=LOGIT_MATRIX)
+myabc <- abc(target=test, param=params, sumstat=stats, tol=0.15, method="ridge", hcorr=TRUE,transf=c('logit'),logit.bounds=LOGIT_MATRIX)
 
 sum=summary(myabc)
 
