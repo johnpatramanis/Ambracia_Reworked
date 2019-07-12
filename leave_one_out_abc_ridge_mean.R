@@ -23,7 +23,7 @@ actual=vector()
 mean_diff=vector()
 
 all_indexes=c(1:dim(a)[1])
-cross_val=sample(all_indexes, size=100, replace =F)
+cross_val=sample(all_indexes, size=1000, replace =F)
 a=a[-(cross_val),]
 cross_val_data=a[cross_val,]
 
@@ -43,9 +43,9 @@ dim(stats) # check dims to make sure
 
 
   
-myabc <- abc(target=test, param=params, sumstat=stats, tol=0.15, method="ridge", hcorr=TRUE,transf=c('logit'),logit.bounds=LOGIT_MATRIX)
+myabc <- abc(target=test, param=params, sumstat=stats, tol=0.25, method="ridge", hcorr=TRUE,transf=c('logit'),logit.bounds=LOGIT_MATRIX)
 
-sum=summary(myabc)
+summarystats=summary(myabc)
 
 
 for (w in 1:13){
@@ -53,12 +53,20 @@ for (w in 1:13){
 PredictionsFile <- paste ("PREDICTIONS_MEAN_",w, sep = "", collapse = NULL)
 
 print(j)
-predicted[j]=as.numeric(sum[4,w])
-actual[j]=as.numeric(test_params[w])
+print(summarystats)
+print(summarystats[3,w])
+predicted1=as.numeric(summarystats[3,w])# MED
+predicted2=as.numeric(summarystats[4,w])# MEAN
+predicted3=as.numeric(summarystats[5,w])# MODE
+actual=as.numeric(test_params[w])
+print(predicted1)
+print(predicted2)
+print(predicted3)
+print(actual)
 
-cat(paste(actual[j],'\t'),file=PredictionsFile,append=TRUE,sep='\t')
-cat(paste(predicted[j],'\t'),file=PredictionsFile,append=TRUE,sep='\t')
-cat('',file=PredictionsFile,append=TRUE,sep='\n')
+
+
+cat(paste(actual,'\t',predicted1,'\t',predicted2,'\t',predicted3,'\n'),file=PredictionsFile,append=TRUE,sep='\t')
 
 }
 }, error=function(e){})
