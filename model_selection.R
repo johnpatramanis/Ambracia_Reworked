@@ -15,4 +15,4 @@ sumsta= a[,-(1:14)] #summary stats
 data1 = data.frame(modindex, sumsta) #combined?
 
 
-model.rf1 <- abcrf(modindex~., data = data1, ntree=100,lda=FALSE) #our model, does not run with lda=TRUE
+model.rf1 <- abcrf(modindex~., data = data1,ncores=8, ntree=100,lda=FALSE) #our model, does not run with lda=TRUE
