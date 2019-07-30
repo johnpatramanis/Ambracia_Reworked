@@ -5,7 +5,7 @@ setwd("/home/kluser2/datasets/ambracia_sims/REWORKED/")
 system('grep -vwE "NA" FOR_ABC > FOR_ABC_CLEAN')
 library(abc)
 library(Metrics)
-
+library(dplyr)
 
 a <- read.table("FOR_ABC_CLEAN", h=F)
 dim(a)
@@ -22,10 +22,9 @@ predicted=vector()
 actual=vector()
 mean_diff=vector()
 
-all_indexes=c(1:dim(a)[1])
-cross_val=sample(all_indexes, size=1000, replace =F)
-a=a[-(cross_val),]
-cross_val_data=a[cross_val,]
+cross_val_data=subset_n(a,1000)
+a=anti_join(a,cross_val_data)
+
 
 
 
@@ -43,7 +42,7 @@ dim(stats) # check dims to make sure
 
 
   
-myabc <- abc(target=test, param=params, sumstat=stats, tol=0.25, method="ridge", hcorr=TRUE,transf=c('logit'),logit.bounds=LOGIT_MATRIX)
+myabc <- abc(target=test, param=params, sumstat=stats, tol=0.1, method="ridge", hcorr=TRUE,transf=c('logit'),logit.bounds=LOGIT_MATRIX)
 
 summarystats=summary(myabc)
 
