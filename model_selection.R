@@ -24,4 +24,4 @@ truindex= cross_val_data[,1]
 truindex=sapply(truindex,as.factor)
 err.rf <- err.abcrf(model.rf1, data1)
 
-model_predict=predict(model.rf1,sums
+model_predict=predict(model.rf1,sumstb,data1,ntree=100)
