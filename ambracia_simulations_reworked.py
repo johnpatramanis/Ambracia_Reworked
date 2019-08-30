@@ -225,7 +225,7 @@ for REPS in range(0,reps):
      
 ################################################################ RUN COMUSTATS #################################################################
     
-    os.system('CoMuStats -input CHUNKED_{}  -npop 3 20 20 20 -pairwiseFst -ms -sepPops > COMUSTATS_{}'.format(REPS,REPS))
+    os.system('CoMuStats -input CHUNKED_{}  -npop 3 20 20 20 -pairwiseFst -ms -sepPops -f3 > COMUSTATS_{}'.format(REPS,REPS))
     elapsed_time_4=time.time() - start_time
     print('step 3 : {}'.format(elapsed_time_4/60)) 
     os.system('rm CHUNKED_*')    
