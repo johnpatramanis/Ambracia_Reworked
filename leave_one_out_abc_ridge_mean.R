@@ -1,5 +1,7 @@
 
-setwd("/home/kluser2/datasets/ambracia_sims/REWORKED/")
+mydirectory=getwd()
+setwd(mydirectory)
+
 
 
 system('grep -vwE "NA" FOR_ABC > FOR_ABC_CLEAN')
