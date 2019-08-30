@@ -8,7 +8,7 @@ for line in COMUS_FILE:
     for k in range(0,len(line)):
         parameters[k]=[]
 
-for x in range(0,29000):
+for x in range(0,290000):
     COMUS_FILE=open('COMUSTATS_{}'.format(x),'r')
     j=0
     COMUS_FILE.readline()
