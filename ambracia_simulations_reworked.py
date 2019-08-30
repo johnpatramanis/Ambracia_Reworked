@@ -14,7 +14,7 @@ from multiprocessing import Process,Manager
 start_time = time.time()
 
 
-reps=100
+reps=290001
 for REPS in range(0,reps):
 
     
