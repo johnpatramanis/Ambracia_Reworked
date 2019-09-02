@@ -1,20 +1,67 @@
-import msprime
-import numpy as np
-import math
-import os
-import argparse
-import time
-import re
-import random
-import sys
-from sklearn import svm
-from sklearn.svm import SVC
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import GridSearchCV
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Feb 14 14:58:03 2018
 
-DATAFILE=open('FOR_ABC','r')
+@author: John Patramanis,original code from aaggelos
+"""
+
+import math
+import numpy as np
+from numpy import genfromtxt
+from numpy import random
+import timeit
+import matplotlib.pyplot as plt
+#import pandas as pd #not sure if needed
+#model selection
+from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
+#classifiers
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+#cross validation
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import KFold
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.externals import joblib
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+#general
+import math
+import numpy as np
+from numpy import genfromtxt
+import timeit
+import matplotlib.pyplot as plt
+import re
+
+#prediction
+
+from sklearn.metrics import classification_report
+from sklearn.metrics import make_scorer
+from sklearn.metrics import roc_curve
+
+
+#feature selection
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import SelectFromModel
+from sklearn.feature_selection import mutual_info_classif
+
+#how to crash a server 101
+from sklearn.externals import joblib
+from sklearn.externals.joblib import Parallel, delayed
+import multiprocessing
+
+
+start_time = timeit.default_timer()
+
+
+
+DATAFILE=open('FOR_SVM','r')
 
 
 LABELS=[]
@@ -30,70 +77,136 @@ X_train, X_test, y_train, y_test = train_test_split(X,Y,test_size=0.2, random_st
     
 print(len(LABELS),len(DATA))
 
-RANDOM_INTS=np.random.choice(len(DATA),len(DATA)/10,replace=False)
-
-TEST_DATA=[DATA[x] for x in range(0,len(DATA)) if x in RANDOM_INTS]
-TEST_LABELS=[LABELS[x] for x in range(0,len(LABELS)) if x in RANDOM_INTS]
-
-DATA=[DATA[x] for x in range(0,len(DATA)) if x not in RANDOM_INTS]
-LABELS=[LABELS[x] for x in range(0,len(LABELS)) if x not in RANDOM_INTS]
-
-print(len(DATA),len(TEST_DATA),len(LABELS),len(TEST_LABELS))
-
-clf = svm.SVC(gamma='scale')
-clf.fit(DATA,LABELS)
-predictions=clf.predict(TEST_DATA)
-CORRECTNESS=[]
-for x in range(0,len(predictions)):
-    if predictions[x]!=TEST_LABELS[x]:
-        CORRECTNESS.append(0)
-    if predictions[x]==TEST_LABELS[x]:
-        CORRECTNESS.append(1)
-print(np.sum(CORRECTNESS)/len(CORRECTNESS))
 
 
+###-------------------------- Random Forests --------------------------
+print("Random Forest")
 
 
-#to be implemented
-#feature selection
-clf = LassoCV(cv=5)
+pipeline_rf = make_pipeline(StandardScaler(), RandomForestClassifier( n_jobs=10))
 
-# Set a minimum threshold of 0.25
-sfm = SelectFromModel(clf, threshold=0.25)
-sfm.fit(X, y)
-n_features = sfm.transform(X).shape[1]
-
-while n_features > 2:
-    sfm.threshold += 0.1
-    X_transform = sfm.transform(X)
-    n_features = X_transform.shape[1]
-
-plt.title(
-    "Features selected from Boston using SelectFromModel with "
-    "threshold %0.3f." % sfm.threshold)
-feature1 = X_transform[:, 0]
-feature2 = X_transform[:, 1]
-plt.plot(feature1, feature2, 'r.')
-plt.xlabel("Feature number 1")
-plt.ylabel("Feature number 2")
-plt.ylim([np.min(feature2), np.max(feature2)])
-plt.show()
+crit = ['gini', 'entropy']
+numt = [100, 150] #number of trees
+feats = ['log2','sqrt'] #max_features considered during each split
+depth = [ 20, 30, None] #maximum depth each tree is allowed to reach
+# 
+hyperparameters = {#'randomforestclassifier__criterion' : crit,
+                   'randomforestclassifier__n_estimators' : numt,
+                   'randomforestclassifier__max_features' : feats,
+                   'randomforestclassifier__max_depth': depth}
 
 
+nested_score = np.zeros([60, 1]).astype(int)
+print(nested_score.shape)
+
+inner_cv = KFold(n_splits=10, shuffle=True)
+outer_cv = KFold(n_splits=5, shuffle=True)
+
+## Pass the gridSearch estimator to cross_val_score
+clf = GridSearchCV(pipeline_rf, param_grid=hyperparameters, cv=inner_cv)
+
+set_scores = []
+
+#for each demographic pair we perform nested cross validation
+
+for i in range(1, 61):
+    kappa = cross_val_score(clf, X=DATA, y=LABELS, cv=outer_cv, n_jobs=10).mean()
+    nested_score[i-1,0] = kappa
+    set_scores.append(kappa)
+    print("dataset" + str(i))
+with open ("forest_res.txt",'w') as rf:
+    for j in range (0, 60):
+        rf.write(str(set_scores[j]))
+    
+print(kappa)
+
+print(set_scores)
+
+#############################################################################################################################################################
+#############################################################################################################################################################
+
+nested_scores = {}
+
+clf_names = ['Corinthian Origin', 'Local Origin']
+
+true_pos = []
+false_pos = []
+
+accuracies = np.zeros((61,3)).astype(float)
+print(accuracies.shape)
+
+dtst = 0
+def get_the_rep(y_true, y_pred):
+    global dtst
+    nested_scores.update({'params'+str(dtst) : classification_report(y_pred,y_true,target_names = clf_names)})
+    
+    fpr, tpr, _ = roc_curve(y_true, y_pred, pos_label=0)
+    true_pos.append(tpr)
+    false_pos.append(fpr)         
+    
+    
+    dtst = dtst + 1
+    return accuracy_score(y_true, y_pred)
+
+
+#def get_the_rep(y_true, y_pred):
+#    global dtst
+#    best_params.update({'params'+str(dtst) : classification_report(y_pred,y_true,target_names = clf_names)})
+#    dtst = dtst + 1
+#    return accuracy_score(y_true, y_pred)
 
 
 
-####
-#model selection
+#############################################################################################################################################################
+#############################################################################################################################################################
+#############################################################################################################################################################
 
-from sklearn.pipeline import Pipeline
-steps = [('scaler', StandardScaler()), ('SVM', SVC())]
-pipeline = Pipeline(steps)
+#------------------ Support Vector Machines ---------------
+print("Support Vector Machines")
+pipeline_svm = make_pipeline(StandardScaler(), SVC())
+cst = [1, 2, 5, 7, 10] #starting from hard-margin and loosening to see performance
+ker = ['poly']
+deg = [1] #just for the polynomial kernel
 
-X_train, X_test, y_train, y_test = train_test_split(X,Y,test_size=0.2, random_state=30, stratify=Y)
 
-parameteres = {'SVM__C':[0.001,0.1,10,100,10e5], 'SVM__gamma':[0.1,0.01]}
+hyperparameters = { 'svc__C' : cst,
+                   'svc__kernel': ker,
+                   'svc__degree': deg,
+                   }
 
-grid = GridSearchCV(pipeline, param_grid=parameteres, cv=5)
+inner_cv = KFold(n_splits=10, shuffle=True)
+outer_cv = KFold(n_splits=5, shuffle=True)
 
-print (grid.best_params_)
+## Pass the gridSearch estimator to cross_val_score
+clf = GridSearchCV(pipeline_svm, param_grid=hyperparameters, cv=inner_cv, n_jobs=-1)
+
+
+
+#for each demographic pair we perform nested cross validation
+for feats in range (40, 41):
+    
+    set_scores_svm = []
+ #   global true_pos, false_pos, nested_scores
+
+    nested_scores = {}
+    true_pos = []
+    false_pos = []
+    
+    print (feats)
+    for i in range(1, num_sets):
+        print(i)
+        data = np.concatenate((neut_data['neut'+str(i)],slct_data['sel'+str(i)]), axis = 0)
+        selected = SelectKBest(score_func=mutual_info_classif, k=feats).fit(data, labels[:,0])
+        current = selected.transform(data)
+        
+        kappa = cross_val_score(clf, X=current, y=labels[:,0], cv=outer_cv, scoring = make_scorer(get_the_rep)).mean()
+        set_scores_svm.append(kappa)    
+    
+    with open ("split_res/acc/tot_acc_split" + str(feats) + ".txt", "w") as rf:
+        for j in range (0, 60):
+           rf.write(str(set_scores_svm[j]) + "\n")
+    
+    np.savetxt("split_res/tpr/tpr_split" + str(feats) + ".txt", np.array(true_pos[:]),  fmt = '%1.8f')
+    np.savetxt("split_res/fpr/fpr_split" + str(feats) + ".txt",  np.array(false_pos[:]),  fmt = '%1.8f' )
+    #np.savetxt("split_res/nested/rep_split" + str(feats) + ".txt", np.array(true_pos[:]),  fmt = '%1.8f')
+    	#rp.write(str(nested_scores))
