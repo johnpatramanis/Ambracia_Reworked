@@ -6,7 +6,7 @@ setwd(mydirectory)
 ComusMinMax <- read.table("COMUS_MIN_MAX",sep='\t')
 
 
-for (i in 0:29000){
+for (i in 0:290000){
 print(i)
 ############################################################
 #PARAMETERS input  
