@@ -6,7 +6,7 @@ setwd(mydirectory)
 
 
 
-for (i in 0:90000){
+for (i in 0:290000){
 print(i)
 ############################################################
 #PARAMETERS input  
