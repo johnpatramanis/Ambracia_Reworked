@@ -24,7 +24,7 @@ predicted=vector()
 actual=vector()
 mean_diff=vector()
 
-cross_val_data=subset(a,1000)
+cross_val_data=sample_n(a,1000)
 a=anti_join(a,cross_val_data)
 
 
