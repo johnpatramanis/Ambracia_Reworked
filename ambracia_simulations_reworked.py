@@ -108,7 +108,7 @@ for REPS in range(0,reps):
         #recomb_map=msprime.RecombinationMap.read_hapmap('genetic_map_GRCh37_chr{}.txt'.format(j))
         dd = msprime.simulate(samples=samples,
             population_configurations=population_configurations,
-            migration_matrix=migration_matrix,mutation_rate=1e-8,
+            migration_matrix=migration_matrix,mutation_rate=1.5e-8,
             demographic_events=demographic_events,length=500000)
         outfile=open('ms_prime_{}'.format(j),'w')
         for var in dd.variants():
