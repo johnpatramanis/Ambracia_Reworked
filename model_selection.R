@@ -6,7 +6,7 @@ library(abcrf)
 
 a <- read.table("FOR_ABC_CLEAN", h=F)
 
-cross_val_data=sample_n(a,1000)
+cross_val_data=sample_n(a,10000)
 a=anti_join(a,cross_val_data)
 
 #build training dataset
