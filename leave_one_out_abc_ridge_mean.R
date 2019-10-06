@@ -44,7 +44,7 @@ dim(stats) # check dims to make sure
 
 
   
-myabc <- abc(target=test, param=params, sumstat=stats, tol=0.1, method="ridge", hcorr=TRUE,transf=c('logit'),logit.bounds=LOGIT_MATRIX)
+myabc <- abc(target=test, param=params, sumstat=stats, tol=0.15, method="ridge", hcorr=TRUE,transf=c('logit'),logit.bounds=LOGIT_MATRIX)
 
 summarystats=summary(myabc)
 
