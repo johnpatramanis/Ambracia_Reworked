@@ -40,13 +40,13 @@ for REPS in range(0,reps):
 
 
 
-    r_locals=10**(-1*random.uniform(1,4))
-    r_metropolis=10**(-1*random.uniform(1,4))
-    r_colony=10**(-1*random.uniform(1,4))
+    r_locals=np.random.uniform(0.0001,0.1)
+    r_metropolis=np.random.uniform(0.0001,0.1)
+    r_colony=np.random.uniform(0.0001,0.1)
     
     growth_counter=0
     while (float(N_initial_colony) / (math.exp(-r_colony * T_COLONIZATION)) ) > float(N_metropolis):
-        r_colony=10**(-1*random.uniform(1,4))
+        r_colony=np.random.uniform(0.0001,0.1)
         growth_counter+=1
         if growth_counter>=1000000:
             r_colony=0
@@ -67,9 +67,9 @@ for REPS in range(0,reps):
 
 
     migration_matrix = [
-        [0,10**(-1*random.uniform(1,4)),10**(-1*random.uniform(1,4))],
-        [10**(-1*random.uniform(1,4)),0,10**(-1*random.uniform(1,4))],
-        [10**(-1*random.uniform(1,4)),10**(-1*random.uniform(1,4)),0]]
+        [0,np.random.uniform(0.0001,0.1),np.random.uniform(0.0001,0.1)],
+        [np.random.uniform(0.0001,0.1),0,np.random.uniform(0.0001,0.1)],
+        [np.random.uniform(0.0001,0.1),np.random.uniform(0.0001,0.1),0]
 
     N1=20
     N2=20
