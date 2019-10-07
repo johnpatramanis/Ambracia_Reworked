@@ -34,4 +34,8 @@ test_params <-cross_val_data[1,2:14]
 myabc <- abc(target=test, param=params, sumstat=stats, tol=0.1, method="ridge", hcorr=TRUE,transf=c('logit'),logit.bounds=LOGIT_MATRIX)
 summarystats=summary(myabc)
 
+#plot examples
+
+priors=cbind(params[,1],stats[,1])
+posteriors=cbind(myabc$adj.values[,1],myabc$ss[,1])
 
