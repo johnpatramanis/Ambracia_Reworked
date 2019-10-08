@@ -151,7 +151,7 @@ for k in range(0,len(predictedd)):
         Predictions.append(0)
 
 print(np.mean(Predictions))
-results.write(str(mean(Predictions)))
+results.write(str(np.mean(Predictions)))
 #print(clf.cv_results_[clf.best_index_])
 kappa = cross_val_score(clf, X=DATA, y=LABELS, cv=outer_cv, n_jobs=12)
 
@@ -164,6 +164,8 @@ print('finished')
 ##################################################################################################################################################
 #############################################################################################################################################################
 #############################################################################################################################################################
+
+#------------------ Support Vector Machines ---------------
 
 #------------------ Support Vector Machines ---------------
 print("Support Vector Machines")
@@ -189,7 +191,7 @@ clf = GridSearchCV(pipeline_svm, param_grid=hyperparameters, cv=inner_cv, n_jobs
 
 
 set_scores_svm=[]
-FEATS=[30,50,90]
+FEATS=['all',20,30,50]
 
 #   global true_pos, false_pos, nested_scores
 for feats in FEATS:
