@@ -233,6 +233,7 @@ for REPS in range(0,reps):
 
 os.system('python3 comustats_min_max.py') #minimum maximum for each metric
 os.system('Rscript simulation_analisis_distr.R') #distributions for each metric
+os.system('Rscript simulation_analisis_mean.R')  #menafor each metric     
 os.system('Rscript leave_one_out_abc_ridge_mean.R') #leave one out predictions
 
 
